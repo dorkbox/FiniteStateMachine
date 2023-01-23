@@ -25,7 +25,7 @@ class TestTrie {
         val keys = Arrays.asList(*strings)
         var text: String
         run {
-            val map = TreeMap<String, String>()
+            val map = HashMap<String, String>()
             for (key in keys) {
                 map[key] = key
             }
@@ -60,7 +60,7 @@ class TestTrie {
         val keys = Arrays.asList(*strings)
         var text: String
         run {
-            val map = TreeMap<ByteArray, String>()
+            val map = HashMap<ByteArray, String>()
             for (key in keys) {
                 map[key] = String(key)
             }
