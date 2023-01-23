@@ -36,7 +36,7 @@ plugins {
 
 object Extras {
     // set for the project
-    const val description = "Niche collections to augment what is already available."
+    const val description = "Finite State Machine using the AhoCorasick implementation, java 8+"
     const val group = "com.dorkbox"
     const val version = "1.0"
 
