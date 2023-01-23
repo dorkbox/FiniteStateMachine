@@ -1,4 +1,4 @@
-module dorkbox.collections {
+module dorkbox.fsm {
     exports dorkbox.fsm;
 
     requires transitive dorkbox.updates;
