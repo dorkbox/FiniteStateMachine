@@ -38,8 +38,9 @@ package dorkbox.fsm
 
 import java.io.ObjectInputStream
 
-class DoubleArrayByteArrayTrie<V>(map: Map<ByteArray, V>? = null, inputStream: ObjectInputStream? = null):
-    BaseByteTrie<ByteArray, V>(map, inputStream) {
+class DoubleArrayByteArrayTrie<V>(
+    map: Map<ByteArray, V>? = null,
+    inputStream: ObjectInputStream? = null) : BaseByteTrie<ByteArray, V>(map, inputStream) {
 
     override fun builder(): BaseByteBuilder<ByteArray, V> {
         return object: BaseByteBuilder<ByteArray, V>() {

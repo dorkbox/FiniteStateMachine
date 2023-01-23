@@ -38,8 +38,9 @@ package dorkbox.fsm
 
 import java.io.ObjectInputStream
 
-class DoubleArrayStringTrie<V>(map: Map<String, V>? = null,
-                               inputStream: ObjectInputStream? = null): BaseCharTrie<String, V>(map, inputStream) {
+class DoubleArrayStringTrie<V>(
+    map: Map<String, V>? = null,
+    inputStream: ObjectInputStream? = null) : BaseCharTrie<String, V>(map, inputStream) {
     override fun builder(): BaseCharBuilder<String, V> {
         return object: BaseCharBuilder<String, V>() {
             /**
