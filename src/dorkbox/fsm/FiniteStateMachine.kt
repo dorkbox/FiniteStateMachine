@@ -53,7 +53,7 @@ object FiniteStateMachine {
     }
 
     fun build(strings: List<ByteArray>): DoubleArrayByteArrayTrie<Boolean> {
-        val map = TreeMap<ByteArray, Boolean>()
+        val map = HashMap<ByteArray, Boolean>()
         for (key in strings) {
             map[key] = java.lang.Boolean.TRUE
         }
@@ -62,7 +62,7 @@ object FiniteStateMachine {
     }
 
     fun build(vararg strings: String): DoubleArrayStringTrie<Boolean> {
-        val map = TreeMap<String, Boolean>()
+        val map = HashMap<String, Boolean>()
         for (key in strings) {
             map[key] = java.lang.Boolean.TRUE
         }
@@ -71,7 +71,7 @@ object FiniteStateMachine {
     }
 
     fun build(vararg strings: ByteArray): DoubleArrayByteArrayTrie<Boolean> {
-        val map = TreeMap<ByteArray, Boolean>()
+        val map = HashMap<ByteArray, Boolean>()
         for (key in strings) {
             map[key] = java.lang.Boolean.TRUE
         }
