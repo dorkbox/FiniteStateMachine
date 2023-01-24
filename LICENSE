@@ -1,11 +1,11 @@
- - FiniteStateMachine - Niche collections to augment what is already available.
+ - FiniteStateMachine - Finite State Machine using the AhoCorasick implementation, java 8+
    [The Apache Software License, Version 2.0]
    https://git.dorkbox.com/dorkbox/FSM
    Copyright 2023
      Dorkbox LLC
 
    Extra license information
-     - AhoCorasickDoubleArrayTrie - Niche collections to augment what is already available.
+     - AhoCorasickDoubleArrayTrie - An extremely fast implementation of Aho Corasick algorithm based on Double Array Trie structure.
        [The Apache Software License, Version 2.0]
        https://github.com/hankcs/AhoCorasickDoubleArrayTrie
        Copyright 2018
