@@ -369,7 +369,12 @@ internal abstract class BaseCharBuilder<K, V> {
      * free the unnecessary memory
      */
     private fun loseWeight() {
-        base = base.copyOf(size + 65535)
-        check = check.copyOf(size + 65535)
+        val nbase = IntArray(size + 65535)
+        System.arraycopy(base, 0, nbase, 0, size)
+        base = nbase
+
+        val ncheck = IntArray(size + 65535)
+        System.arraycopy(check, 0, ncheck, 0, check.size.coerceAtMost(ncheck.size))
+        check = ncheck
     }
 }
