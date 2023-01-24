@@ -66,7 +66,7 @@ licensing {
         url(Extras.url)
 
         extra("AhoCorasickDoubleArrayTrie", License.APACHE_2) {
-            description(Extras.description)
+            description("An extremely fast implementation of Aho Corasick algorithm based on Double Array Trie structure.")
             copyright(2018)
             author("hankcs <me@hankcs.com>")
             url("https://github.com/hankcs/AhoCorasickDoubleArrayTrie")
