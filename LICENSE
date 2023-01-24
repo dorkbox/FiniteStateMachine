@@ -1,4 +1,4 @@
- - FiniteStateMachine - Finite State Machine using the AhoCorasick implementation, java 8+
+ - FiniteStateMachine - Finite State Machine using the AhoCorasick implementation using a Double Array Trie, java 8+
    [The Apache Software License, Version 2.0]
    https://git.dorkbox.com/dorkbox/FSM
    Copyright 2023
