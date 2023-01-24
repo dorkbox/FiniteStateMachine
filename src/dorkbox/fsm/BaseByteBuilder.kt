@@ -34,6 +34,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DuplicatedCode")
+
 package dorkbox.fsm
 
 import java.util.*
@@ -109,17 +111,17 @@ internal abstract class BaseByteBuilder<K, V> {
      * @return the amount of the siblings
      */
     private fun fetch(parent: StateByte,
-                      siblings: MutableList<Pair<Int, StateByte>>): Int {
+                      siblings: MutableList<Map.Entry<Int, StateByte>>): Int {
 
         if (parent.isAcceptable) {
             // This node is a child of the parent and has the output of the parent.
             val fakeNode = StateByte(-(parent.depth + 1))
             fakeNode.addEmit(parent.largestValueId!!)
-            siblings.add(Pair(0, fakeNode))
+            siblings.add(AbstractMap.SimpleEntry(0, fakeNode))
         }
 
         for ((key, value) in parent.getSuccess()) {
-            siblings.add(Pair(key + 1, value))
+            siblings.add(AbstractMap.SimpleEntry(key + 1, value))
         }
 
         return siblings.size
@@ -167,7 +169,7 @@ internal abstract class BaseByteBuilder<K, V> {
             val currentState = queue.remove()
 
             for (transition in currentState.transitions) {
-                val targetState = currentState.nextState(transition)
+                val targetState = currentState.nextState(transition)!!
                 queue.add(targetState)
 
                 var traceFailureState = currentState.failure()
@@ -175,8 +177,8 @@ internal abstract class BaseByteBuilder<K, V> {
                     traceFailureState = traceFailureState.failure()
                 }
 
-                val newFailureState = traceFailureState.nextState(transition)
-                targetState!!.setFailure(newFailureState!!, fail)
+                val newFailureState = traceFailureState.nextState(transition)!!
+                targetState.setFailure(newFailureState, fail)
                 targetState.addEmit(newFailureState.emit())
                 constructOutput(targetState)
             }
@@ -212,7 +214,7 @@ internal abstract class BaseByteBuilder<K, V> {
         val rootNode = this.rootState
         val initialCapacity = rootNode!!.getSuccess().entries.size
 
-        val siblings = ArrayList<Pair<Int, StateByte>>(initialCapacity)
+        val siblings = ArrayList<Map.Entry<Int, StateByte>>(initialCapacity)
         fetch(rootNode, siblings)
 
         if (siblings.isNotEmpty()) {
@@ -245,13 +247,29 @@ internal abstract class BaseByteBuilder<K, V> {
     /**
      * insert the siblings to double array trie
      *
-     * @param siblings the siblings being inserted
-     *
-     * @return the position to insert them
+     * @param firstSiblings the siblings being inserted
      */
-    private fun insert(siblings: List<Pair<Int, StateByte>>): Int {
-        var begin: Int
-        var pos = Math.max(siblings[0].first + 1, nextCheckPos) - 1
+    private fun insert(firstSiblings: MutableList<Map.Entry<Int, StateByte>>) {
+        val siblingQueue: Queue<Map.Entry<Int?, MutableList<Map.Entry<Int, StateByte>>>> = ArrayDeque()
+        siblingQueue.add(AbstractMap.SimpleEntry<Int, MutableList<Map.Entry<Int, StateByte>>>(null, firstSiblings))
+
+        while (!siblingQueue.isEmpty()) {
+            insert(siblingQueue)
+        }
+    }
+
+    /**
+     * insert the siblings to double array trie
+     *
+     * @param siblingQueue a queue holding all siblings being inserted and the position to insert them
+     */
+    private fun insert(siblingQueue: Queue<Map.Entry<Int?, MutableList<Map.Entry<Int, StateByte>>>>) {
+        val tCurrent = siblingQueue.remove()
+        val siblings = tCurrent.value
+
+
+        var begin = 0
+        var pos = (siblings[0].key + 1).coerceAtLeast(nextCheckPos) - 1
         var nonzeroNum = 0
         var first = 0
 
@@ -271,18 +289,21 @@ internal abstract class BaseByteBuilder<K, V> {
             if (check[pos] != 0) {
                 nonzeroNum++
                 continue
-            }
-            else if (first == 0) {
+            } else if (first == 0) {
                 nextCheckPos = pos
                 first = 1
             }
 
-            begin = pos - siblings[0].first // The distance of the current position from the first sibling node
-            if (allocSize <= begin + siblings[siblings.size - 1].first) {
-                // progress can be zero
-                // Prevent progress from generating zero divide errors
-                val l = if (1.05 > 1.0 * keySize / (progress + 1)) 1.05 else 1.0 * keySize / (progress + 1)
-                resize((allocSize * l).toInt())
+            // The current position of the first sibling node distance
+            begin = pos - siblings[0].key
+            if (allocSize <= begin + siblings[siblings.size - 1].key) {
+                if (allocSize >= BaseCharBuilder.maxSize) {
+                    throw RuntimeException("Double array trie is too big.")
+                } else {
+                    // progress can be zero // Prevent the progress of generating divide by zero errors
+                    val toSize = 1.05.coerceAtLeast(1.0 * keySize / (progress + 1)) * allocSize
+                    resize(toSize.coerceAtMost(BaseCharBuilder.maxSize.toDouble()).toInt())
+                }
             }
 
             if (used!![begin]) {
@@ -290,7 +311,7 @@ internal abstract class BaseByteBuilder<K, V> {
             }
 
             for (i in 1 until siblings.size) {
-                if (check[begin + siblings[i].first] != 0) {
+                if (check[begin + siblings[i].key] != 0) {
                     continue@outer
                 }
             }
@@ -305,37 +326,40 @@ internal abstract class BaseByteBuilder<K, V> {
         // (e.g. 0.9),
         // new 'next_check_pos' index is written by 'check'.
         if (1.0 * nonzeroNum / (pos - nextCheckPos + 1) >= 0.95) {
-            // From the position next_check_pos to pos, if the occupied space is above 95%, the next
-            // time you insert a node, you can start looking directly at the pos position.
+            // From the position next_check_pos start to the pos if the occupied space more than 95%, the next time you insert a node,
+            // directly from the pos position at the start to find
             nextCheckPos = pos
         }
-        used!![begin] = true  // valid because resize is called.
 
-        val sizeLimit = begin + siblings[siblings.size - 1].first + 1
-        if (size <= sizeLimit) {
-            size = sizeLimit
+        // valid because resize is called.
+        used!![begin] = true
+        size = if (size > begin + siblings[siblings.size - 1].key + 1) {
+            size
+        } else {
+            begin + siblings[siblings.size - 1].key + 1
         }
 
-
-        for (sibling in siblings) {
-            check[begin + sibling.first] = begin
+        for ((key, _) in siblings) {
+            check[begin + key] = begin
         }
 
-        for (sibling in siblings) {
-            val newSiblings = ArrayList<Pair<Int, StateByte>>(sibling.second.getSuccess().entries.size + 1)
+        for ((key, value) in siblings) {
+            val newSiblings = ArrayList<Map.Entry<Int, StateByte>>(value.success.size + 1).toMutableList()
 
-            if (fetch(sibling.second, newSiblings) == 0) {
-                // The termination of a word and not the prefix of other words, in fact, is the leaf node
-                base[begin + sibling.first] = 0 - sibling.second.largestValueId!! - 1
+            if (fetch(value, newSiblings) == 0) {
+                base[begin + key] = 0 - value.largestValueId!! - 1
                 progress++
+            } else {
+                siblingQueue.add(AbstractMap.SimpleEntry(begin + key, newSiblings))
             }
-            else {
-                val h = insert(newSiblings)   // depth first search
-                base[begin + sibling.first] = h
-            }
-            sibling.second.index = begin + sibling.first
+            value.index = begin + key
         }
-        return begin
+
+        // Insert siblings
+        val parentBaseIndex = tCurrent.key
+        if (parentBaseIndex != null) {
+            base[parentBaseIndex] = begin
+        }
     }
 
     /**

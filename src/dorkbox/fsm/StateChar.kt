@@ -78,7 +78,7 @@ class StateChar(
     /**
      * The goto table, also known as the transfer function. Move to the next state based on the next character of the string
      */
-    private val success = TreeMap<Char, StateChar>()
+    val success = TreeMap<Char, StateChar>()
 
     /**
      * Corresponding subscript in double array
@@ -198,12 +198,5 @@ class StateChar(
         sb.append(", failure=").append(failure)
         sb.append('}')
         return sb.toString()
-    }
-
-    /**
-     * Get goto table
-     */
-    fun getSuccess(): Map<Char, StateChar> {
-        return success
     }
 }

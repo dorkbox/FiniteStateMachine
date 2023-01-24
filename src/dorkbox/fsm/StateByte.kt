@@ -78,7 +78,7 @@ class StateByte(
     /**
      * The goto table, also known as the transfer function. Move to the next state based on the next character of the string
      */
-    private val success = TreeMap<Byte, StateByte>()
+    val success = TreeMap<Byte, StateByte>()
 
     /**
      * Corresponding subscript in double array
