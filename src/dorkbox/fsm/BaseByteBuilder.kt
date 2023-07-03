@@ -206,7 +206,7 @@ internal abstract class BaseByteBuilder<K, V> {
     private fun buildDoubleArrayTrie(keySize: Int) {
         progress = 0
         this.keySize = keySize
-        resize(65536 * 32) // 32 double bytes
+        resize(256) // only 256 values per byte!
 
         base[0] = 1
         nextCheckPos = 0
@@ -217,7 +217,11 @@ internal abstract class BaseByteBuilder<K, V> {
         val siblings = ArrayList<Map.Entry<Int, StateByte>>(initialCapacity)
         fetch(rootNode, siblings)
 
-        if (siblings.isNotEmpty()) {
+        if (siblings.isEmpty()) {
+            // fill -1 such that no transition is allowed
+            Arrays.fill(check, -1)
+        }
+        else {
             insert(siblings)
         }
     }
@@ -268,7 +272,7 @@ internal abstract class BaseByteBuilder<K, V> {
         val siblings = tCurrent.value
 
 
-        var begin = 0
+        var begin: Int
         var pos = (siblings[0].key + 1).coerceAtLeast(nextCheckPos) - 1
         var nonzeroNum = 0
         var first = 0
