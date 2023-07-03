@@ -70,9 +70,9 @@ object FiniteStateMachine {
         return build(map)
     }
 
-    fun build(vararg strings: ByteArray): DoubleArrayByteArrayTrie<Boolean> {
+    fun build(vararg bytes: ByteArray): DoubleArrayByteArrayTrie<Boolean> {
         val map = HashMap<ByteArray, Boolean>()
-        for (key in strings) {
+        for (key in bytes) {
             map[key] = java.lang.Boolean.TRUE
         }
 
