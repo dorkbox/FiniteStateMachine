@@ -210,7 +210,7 @@ internal abstract class BaseCharBuilder<K, V> {
     private fun buildDoubleArrayTrie(keySize: Int) {
         progress = 0
         this.keySize = keySize
-        resize(65536 * 32) // 32 double bytes (strings characters are not limited to ascii, utf-32 is HUGE)
+        resize(65536 * 32) // (65535+1) * 32 for double bytes (strings characters are utf-16)
 
         base[0] = 1
         nextCheckPos = 0

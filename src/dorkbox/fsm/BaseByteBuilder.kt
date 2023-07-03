@@ -206,7 +206,7 @@ internal abstract class BaseByteBuilder<K, V> {
     private fun buildDoubleArrayTrie(keySize: Int) {
         progress = 0
         this.keySize = keySize
-        resize(256) // only 256 values per byte!
+        resize(257 * 32) // (256+1) * 32 bytes (single byte entries)
 
         base[0] = 1
         nextCheckPos = 0
