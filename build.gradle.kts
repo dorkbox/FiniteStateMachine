@@ -36,7 +36,7 @@ object Extras {
     // set for the project
     const val description = "Finite State Machine using the AhoCorasick implementation using a Double Array Trie, java 8+"
     const val group = "com.dorkbox"
-    const val version = "1.1"
+    const val version = "1.2"
 
     // set as project.ext
     const val name = "FSM"
