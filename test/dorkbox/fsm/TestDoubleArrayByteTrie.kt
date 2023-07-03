@@ -26,94 +26,39 @@ import java.util.*
 /**
  * @author hankcs
  */
-class TestDoubleArrayStringTrie {
-    private fun buildASimpleDoubleArrayStringTrie(): DoubleArrayStringTrie<String> {
+class TestDoubleArrayByteTrie {
+    private fun buildASimpleDoubleArrayByteArrayTrie(): DoubleArrayByteArrayTrie<String> {
         // Collect test data set
-        val map = TreeMap<String, String>()
+        val map = mutableMapOf<ByteArray, String>()
         val keyArray = arrayOf("hers", "his", "she", "he")
-        for (key in keyArray) {
-            map[key] = key
+        keyArray.forEach { key ->
+            map[key.toByteArray()] = key
         }
         // Build an DoubleArrayStringTrie
         return build(map)
     }
 
-    private fun validateASimpleDoubleArrayStringTrie(acdat: DoubleArrayStringTrie<String>) {
+    private fun validateASimpleDoubleArrayByteArrayTrie(acdat: DoubleArrayByteArrayTrie<String>) {
         // Test it
-        val text = "uhers"
-        acdat.parseText(text, object : IHit<String> {
+        val bytes = "uhers".toByteArray()
+        acdat.parseBytes(bytes, object : IHit<String> {
             override fun hit(begin: Int, end: Int, value: String) {
                 System.out.printf("[%d:%d]=%s\n", begin, end, value)
-                Assert.assertEquals(text.substring(begin, end), value)
+
+                Assert.assertEquals(String(bytes.copyOfRange(begin, end)), value)
             }
         })
+
         // Or simply use
-        val wordList = acdat.parseText(text)
+        val wordList = acdat.parseBytes(bytes)
         println(wordList)
     }
 
     @Test
     @Throws(Exception::class)
     fun testBuildAndParseSimply() {
-        val acdat = buildASimpleDoubleArrayStringTrie()
-        validateASimpleDoubleArrayStringTrie(acdat)
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testBuildVeryLongWord() {
-        val map = TreeMap<String, String?>()
-        val longWordLength = 20000
-        val word = loadText("dorkbox/fsm/text.txt")
-        map[word.substring(10, longWordLength)] = word.substring(10, longWordLength)
-        map[word.substring(30, 40)] = null
-
-        // word = loadText("en/text.txt");
-        // map.put(word.substring(10, longWordLength), word.substring(10, longWordLength));
-        // map.put(word.substring(30, 40), null);
-
-        // Build an DoubleArrayStringTrie
-        val acdat: DoubleArrayStringTrie<String?> = build(map)
-
-        val result = acdat.parseText(word)
-        Assert.assertEquals(2, result.size.toLong())
-        Assert.assertEquals(
-            30, result[0].begin.toLong()
-        )
-        Assert.assertEquals(
-            40, result[0].end.toLong()
-        )
-        Assert.assertEquals(
-            10, result[1].begin.toLong()
-        )
-        Assert.assertEquals(
-            longWordLength.toLong(), result[1].end.toLong()
-        )
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testBuildAndParseWithBigFile() {
-        // Load test data from disk
-        val dictionary = loadDictionary("dorkbox/fsm/dictionary.txt")
-
-        val text = loadText("dorkbox/fsm/text.txt")
-        // You can use any type of Map to hold data
-        val map: MutableMap<String, String> = TreeMap()
-        //        Map<String, String> map = new HashMap<String, String>();
-//        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (key in dictionary) {
-            map[key] = key
-        }
-        // Build an DoubleArrayStringTrie
-        val acdat = build(map)
-
-        // Test it
-        acdat.parseText(text, object : IHit<String> {
-            override fun hit(begin: Int, end: Int, value: String) {
-                Assert.assertEquals(text.substring(begin, end), value)
-            }
-        })
+        val acdat = buildASimpleDoubleArrayByteArrayTrie()
+        validateASimpleDoubleArrayByteArrayTrie(acdat)
     }
 
     private class CountHits internal constructor(private val countAll: Boolean) : IHitCancellable<String> {
@@ -194,57 +139,22 @@ class TestDoubleArrayStringTrie {
         Assert.assertEquals(countingMatcher.count.toLong(), 2)
     }
 
-    @Throws(IOException::class)
-    private fun loadText(path: String): String {
-        val sbText = StringBuilder()
-        val br = BufferedReader(
-            InputStreamReader(
-                Thread.currentThread().contextClassLoader.getResourceAsStream(path), "UTF-8"
-            )
-        )
-        var line: String?
-        while (br.readLine().also { line = it } != null) {
-            sbText.append(line).append("\n")
-        }
-        br.close()
-        return sbText.toString()
-    }
-
-    @Throws(IOException::class)
-    private fun loadDictionary(path: String): Set<String> {
-
-        val dictionary: MutableSet<String> = TreeSet()
-        val br = BufferedReader(
-            InputStreamReader(
-                Thread.currentThread().contextClassLoader.getResourceAsStream(path), "UTF-8"
-            )
-        )
-
-
-        var line: String?
-        while (br.readLine().also { line = it } != null) {
-            dictionary.add(line!!)
-        }
-        br.close()
-        return dictionary
-    }
-
     @Suppress("UNCHECKED_CAST")
     @Test
     @Throws(Exception::class)
     fun testSaveAndLoad() {
-        var acdat = buildASimpleDoubleArrayStringTrie()
+        var acdat = buildASimpleDoubleArrayByteArrayTrie()
         val tmpPath = System.getProperty("java.io.tmpdir").replace("\\\\", "/") + "/acdat.tmp"
 
         println("Saving acdat to: $tmpPath")
         val out = ObjectOutputStream(Files.newOutputStream(Paths.get(tmpPath)))
         out.writeObject(acdat)
         out.close()
-
+        
         println("Loading acdat from: $tmpPath")
         val `in` = ObjectInputStream(Files.newInputStream(Paths.get(tmpPath)))
-        acdat = `in`.readObject() as DoubleArrayStringTrie<String>
-        validateASimpleDoubleArrayStringTrie(acdat)
+        acdat = `in`.readObject() as DoubleArrayByteArrayTrie<String>
+        validateASimpleDoubleArrayByteArrayTrie(acdat)
     }
 
     @Test
