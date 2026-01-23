@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 dorkbox, llc
+ * Copyright 2026 dorkbox, llc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,5 +77,15 @@ object FiniteStateMachine {
         }
 
         return build(map)
+    }
+
+    internal fun <T> Collection<T>.toArray(): Array<T> {
+        @Suppress("UNCHECKED_CAST")
+        val a = arrayOfNulls<Any>(size) as Array<T>
+        val iterator = iterator()
+        for (i in 0 until size) {
+            a[i] = iterator.next()
+        }
+        return a
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 dorkbox, llc
+ * Copyright 2026 dorkbox, llc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@
 
 package dorkbox.fsm
 
+import dorkbox.fsm.FiniteStateMachine.toArray
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -92,11 +93,9 @@ abstract class BaseByteTrie<K, V>(map: Map<K, V>?, inputStream: ObjectInputStrea
     init {
         when {
             map != null -> {
-                @Suppress("UNCHECKED_CAST")
-                v = kotlin.jvm.internal.collectionToArray(map.values) as Array<V>
+                v = map.values.toArray()
                 l = IntArray(map.size)
 
-                @Suppress("LeakingThis")
                 val builder = builder()
                 builder.build(map)
 

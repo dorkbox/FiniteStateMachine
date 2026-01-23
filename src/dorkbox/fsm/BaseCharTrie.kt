@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 dorkbox, llc
+ * Copyright 2026 dorkbox, llc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@
 
 package dorkbox.fsm
 
+import dorkbox.fsm.FiniteStateMachine.toArray
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -91,8 +92,7 @@ abstract class BaseCharTrie<K, V>(map: Map<K, V>?, inputStream: ObjectInputStrea
     init {
         when {
             map != null -> {
-                @Suppress("UNCHECKED_CAST")
-                v = kotlin.jvm.internal.collectionToArray(map.values) as Array<V>
+                v = map.values.toArray()
                 l = IntArray(map.size)
 
                 val builder = builder()
@@ -144,9 +144,9 @@ abstract class BaseCharTrie<K, V>(map: Map<K, V>?, inputStream: ObjectInputStrea
      * Get the size of the keywords
      */
     val size: Int
-    get() {
-        return v.size
-    }
+        get() {
+            return v.size
+        }
 
     /**
      * Returns the backing keywords IN THEIR NATURAL ORDER, in the case that you need access to the original FSM data.
@@ -154,9 +154,9 @@ abstract class BaseCharTrie<K, V>(map: Map<K, V>?, inputStream: ObjectInputStrea
      * @return for example, if the FSM was populated with [reddit.com, cnn.com], this will return [cnn.com, reddit.com]
      */
     val keywords: Array<V>
-    get() {
-        return v
-    }
+        get() {
+            return v
+        }
 
     /**
      * Parses text and returns true if there are PARTIALLY matching results. For exact matches only it is better to use `matches`
