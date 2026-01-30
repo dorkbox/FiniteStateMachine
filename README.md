@@ -15,7 +15,7 @@ Maven Info
     <dependency>
       <groupId>com.dorkbox</groupId>
       <artifactId>FSM</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
     </dependency>
 </dependencies>
 ```
@@ -25,7 +25,7 @@ Gradle Info
 ```
 dependencies {
     ...
-    implementation("com.dorkbox:FSM:1.2")
+    implementation("com.dorkbox:FSM:1.3")
 }
 ```
 
